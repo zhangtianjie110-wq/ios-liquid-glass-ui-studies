@@ -84,7 +84,7 @@ struct StudyHome: View {
                             Section { PendingRow() }
                             Section { Label("账户已连接，暂无异常", systemImage: "checkmark.circle").foregroundStyle(.secondary) }
                         }
-                        .scrollContentBackground(.hidden)
+                        .listSectionSpacing(.compact).scrollContentBackground(.hidden)
                         .background(.white)
                         .navigationTitle("任务概览")
                         .navigationBarTitleDisplayMode(.inline)
@@ -123,13 +123,13 @@ struct StudyHome: View {
             Section { PendingRow() }
             demoSection
         }
-        .scrollContentBackground(.hidden)
+        .listSectionSpacing(.compact).scrollContentBackground(.hidden)
         .background(Color.white)
     }
 
     private var summaryScroll: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
+            VStack(alignment: .leading, spacing: 16) {
                 Text("11月21日 星期六").font(.subheadline).foregroundStyle(.secondary)
                 HStack(alignment: .top, spacing: 12) {
                     GroupBox {
@@ -164,7 +164,7 @@ struct StudyHome: View {
                 taskSection
                 Section { PendingRow() }
                 demoSection
-            }.listStyle(.insetGrouped).scrollContentBackground(.hidden)
+            }.listStyle(.insetGrouped).listSectionSpacing(.compact).scrollContentBackground(.hidden)
         }.background(.white)
     }
 
@@ -173,7 +173,7 @@ struct StudyHome: View {
             Section {
                 VStack(alignment: .leading, spacing: 10) {
                     Label("下一期开奖", systemImage: "clock").font(.subheadline).foregroundStyle(.secondary)
-                    Text("02:18").font(.system(size: 56, weight: .light, design: .default)).monospacedDigit().foregroundStyle(.blue)
+                    Text("02:18").font(.system(size: 48, weight: .light, design: .default)).monospacedDigit().foregroundStyle(.blue)
                     Text("最新第 3281021 期 · 大 / 单 / 杂六").font(.caption).foregroundStyle(.secondary)
                 }.padding(.vertical, 6)
             }
@@ -182,7 +182,7 @@ struct StudyHome: View {
             taskSection
             Section { PendingRow() }
             demoSection
-        }.scrollContentBackground(.hidden).background(.white)
+        }.listSectionSpacing(.compact).scrollContentBackground(.hidden).background(.white)
     }
 
     private var modularScroll: some View {
@@ -234,7 +234,7 @@ struct StudyHome: View {
                 PendingRow()
             }
             demoSection
-        }.scrollContentBackground(.hidden).background(.white)
+        }.listSectionSpacing(.compact).scrollContentBackground(.hidden).background(.white)
     }
 
     private var compactList: some View {
@@ -274,7 +274,7 @@ struct StudyHome: View {
                 }
                 .tabViewStyle(.page(indexDisplayMode: .always))
                 .indexViewStyle(.page(backgroundDisplayMode: .always))
-                .frame(height: 265)
+                .frame(height: 220)
                 VStack(spacing: 20) {
                     GroupBox { BalanceView(); ActionButtons() } label: { Label("账户", systemImage: "wallet.bifold") }
                     GroupBox { TasksOverview() } label: { Label("任务", systemImage: "checklist") }
@@ -299,7 +299,7 @@ struct StudyHome: View {
             }
             Section { PendingRow() }
             demoSection
-        }.scrollContentBackground(.hidden).background(.white)
+        }.listSectionSpacing(.compact).scrollContentBackground(.hidden).background(.white)
     }
 
     private var taskSection: some View {
@@ -332,7 +332,7 @@ struct BalanceView: View {
                 Text("今日已结算盈亏").font(.caption).foregroundStyle(.secondary)
                 Text("+286.80").font(.title3.weight(.medium)).monospacedDigit().foregroundStyle(.red)
             }
-        }.padding(.vertical, 7)
+        }.padding(.vertical, 3)
     }
 }
 
@@ -353,7 +353,7 @@ struct DrawView: View {
     var large = false
     var showCountdown = true
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("第 3281021 期").font(.subheadline).foregroundStyle(.secondary)
                 Spacer()
@@ -361,7 +361,7 @@ struct DrawView: View {
             }
             HStack(alignment: .firstTextBaseline, spacing: 0) {
                 number("3"); sign("+"); number("8"); sign("+"); number("6"); sign("=")
-                Text("17").font(.system(size: large ? 62 : 44, weight: .medium)).foregroundStyle(.blue).monospacedDigit().frame(maxWidth: .infinity)
+                Text("17").font(.system(size: large ? 52 : 44, weight: .medium)).foregroundStyle(.blue).monospacedDigit().lineLimit(1).fixedSize(horizontal: true, vertical: false).frame(minWidth: 62).layoutPriority(1)
             }
             HStack {
                 Text("大 · 单 · 杂六").font(.caption).foregroundStyle(.secondary)
@@ -375,7 +375,7 @@ struct DrawView: View {
     }
 
     private func number(_ value: String) -> some View {
-        Text(value).font(.system(size: large ? 39 : 30, weight: .regular)).monospacedDigit().frame(maxWidth: .infinity)
+        Text(value).font(.system(size: large ? 34 : 30, weight: .regular)).monospacedDigit().frame(maxWidth: .infinity)
     }
     private func sign(_ value: String) -> some View {
         Text(value).font(.subheadline).foregroundStyle(.tertiary).frame(width: 16)
