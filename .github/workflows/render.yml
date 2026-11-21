@@ -24,6 +24,11 @@ jobs:
           assert candidates, 'Actual iOS 26 simulator required; no browser approximation permitted'
           candidates.sort(key=lambda x: ('Pro' not in x[1]['name'], 'Max' in x[1]['name'], x[1]['name']))
           runtime,device=candidates[0]
+          types=json.loads(subprocess.check_output(['xcrun','simctl','list','devicetypes','-j']))['devicetypes']
+          kind=next(t['identifier'] for t in types if t['name']==device['name'])
+          fresh=subprocess.check_output(['xcrun','simctl','create','UI-Studies-Fresh',kind,runtime],text=True,timeout=60).strip()
+          device=dict(device,udid=fresh)
+          subprocess.run(['open','-a','Simulator'],timeout=30,check=False)
           with open(os.environ['GITHUB_ENV'],'a') as f:f.write('SIMULATOR_ID='+device['udid']+'\n')
           pathlib.Path('build').mkdir(exist_ok=True)
           pathlib.Path('build/simulator.json').write_text(json.dumps(dict(runtime=runtime,device=device),indent=2))
@@ -35,20 +40,24 @@ jobs:
           xcodebuild build -project LiquidStudies.xcodeproj -scheme LiquidStudies -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID" -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO > build/compile.log 2>&1 || { tail -100 build/compile.log; exit 1; }
       - name: Capture five redesigned native iOS screenshots
         run: |
-          xcrun simctl boot "$SIMULATOR_ID" || true
-          xcrun simctl bootstatus "$SIMULATOR_ID" -b
-          xcrun simctl ui "$SIMULATOR_ID" appearance light
-          xcrun simctl status_bar "$SIMULATOR_ID" override --time '9:41' --dataNetwork wifi --wifiMode active --wifiBars 3 --batteryState charged --batteryLevel 100
-          xcrun simctl install "$SIMULATOR_ID" build/DerivedData/Build/Products/Debug-iphonesimulator/LiquidStudies.app
-          mkdir -p build/screenshots
-          for STYLE in $(seq 0 4); do
-            xcrun simctl terminate "$SIMULATOR_ID" com.wuyou28.liquidstudies || true
-            xcrun simctl launch "$SIMULATOR_ID" com.wuyou28.liquidstudies -study "$STYLE" -AppleLanguages '(zh-Hans)' -AppleLocale zh_CN
-            sleep 4
-            xcrun simctl io "$SIMULATOR_ID" screenshot "build/screenshots/study-$STYLE.png"
-          done
-          cp build/simulator.json build/screenshots/
-          xcrun simctl terminate "$SIMULATOR_ID" com.wuyou28.liquidstudies
+          python3 -u - <<'PY'
+          import subprocess,os,pathlib,time,json
+          simulator=os.environ['SIMULATOR_ID']
+          def run(*args,timeout=60,check=True):
+              print('COMMAND:',*args,flush=True)
+              return subprocess.run(args,timeout=timeout,check=check)
+          run('xcrun','simctl','boot',simulator,timeout=120)
+          run('xcrun','simctl','bootstatus',simulator,'-b',timeout=360)
+          run('xcrun','simctl','ui',simulator,'appearance','light')
+          run('xcrun','simctl','status_bar',simulator,'override','--time','9:41','--dataNetwork','wifi','--wifiMode','active','--wifiBars','3','--batteryState','charged','--batteryLevel','100')
+          run('xcrun','simctl','install',simulator,'build/DerivedData/Build/Products/Debug-iphonesimulator/LiquidStudies.app',timeout=90)
+          pathlib.Path('build/screenshots').mkdir(exist_ok=True)
+          for study in range(5):
+              run('xcrun','simctl','terminate',simulator,'com.wuyou28.liquidstudies',check=False)
+              run('xcrun','simctl','launch',simulator,'com.wuyou28.liquidstudies','-study',str(study),'-AppleLanguages','(zh-Hans)','-AppleLocale','zh_CN',timeout=90)
+              time.sleep(6)
+              run('xcrun','simctl','io',simulator,'screenshot',f'build/screenshots/study-{study}.png')
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
