@@ -33,7 +33,7 @@ jobs:
           brew install xcodegen
           xcodegen generate
           xcodebuild build -project LiquidStudies.xcodeproj -scheme LiquidStudies -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID" -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO > build/compile.log 2>&1 || { tail -100 build/compile.log; exit 1; }
-      - name: Capture ten actual native iOS screenshots
+      - name: Capture five redesigned native iOS screenshots
         run: |
           xcrun simctl boot "$SIMULATOR_ID" || true
           xcrun simctl bootstatus "$SIMULATOR_ID" -b
@@ -41,7 +41,7 @@ jobs:
           xcrun simctl status_bar "$SIMULATOR_ID" override --time '9:41' --dataNetwork wifi --wifiMode active --wifiBars 3 --batteryState charged --batteryLevel 100
           xcrun simctl install "$SIMULATOR_ID" build/DerivedData/Build/Products/Debug-iphonesimulator/LiquidStudies.app
           mkdir -p build/screenshots
-          for STYLE in $(seq 0 9); do
+          for STYLE in $(seq 0 4); do
             xcrun simctl terminate "$SIMULATOR_ID" com.wuyou28.liquidstudies || true
             xcrun simctl launch "$SIMULATOR_ID" com.wuyou28.liquidstudies -study "$STYLE" -AppleLanguages '(zh-Hans)' -AppleLocale zh_CN
             sleep 4
