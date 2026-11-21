@@ -1,6 +1,6 @@
 # White Liquid Glass UI studies
 
-Offline SwiftUI iOS 26 design sample. Five redesigned home screen layouts use only native SwiftUI controls, SF Symbols, system typography and Liquid Glass button/navigation materials.
+Offline SwiftUI iOS 26 design sample. A redesigned white home screen uses native SwiftUI controls, SF Symbols and system typography. Liquid Glass is confined to native navigation; content uses opaque surfaces.
 
 All names and numeric values are presentation fixtures. There are no account credentials, production endpoints, databases, backend sources or transaction execution logic. No production application history is included.
 
